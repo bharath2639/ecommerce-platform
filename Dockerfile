@@ -13,9 +13,8 @@ RUN npm install
 # 5. Copy Source Code
 COPY . .
 
-# 6. BUILD THE APPS (🔴 THIS IS THE MISSING STEP)
-# This converts your TypeScript code into lightweight JavaScript in the 'dist' folder
-RUN npx nx run-many --target=build --all
+# Build ONLY backend services (skip 'shop') and do it one by one to save memory
+RUN npx nx run-many --target=build --projects=auth-service,product-service,order-service --parallel=1
 
 # 7. Default Command (We will override this in Render)
 CMD ["node", "dist/apps/auth-service/src/main.js"]
