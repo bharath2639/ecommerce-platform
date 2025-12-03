@@ -13,5 +13,9 @@ RUN npm install
 # 5. Copy Source Code
 COPY . .
 
-# 6. Default Command (Will be overridden in docker-compose)
-CMD ["npx", "nx", "serve", "auth-service", "--host", "0.0.0.0"]
+# 6. BUILD THE APPS (🔴 THIS IS THE MISSING STEP)
+# This converts your TypeScript code into lightweight JavaScript in the 'dist' folder
+RUN npx nx run-many --target=build --all
+
+# 7. Default Command (We will override this in Render)
+CMD ["node", "dist/apps/auth-service/main.js"]
