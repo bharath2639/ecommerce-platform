@@ -9,14 +9,17 @@ export default function LoginPage() {
   const [token, setToken] = useState('');
   const [error, setError] = useState('');
 
+  // 🌍 Define Base URL (Cloud or Local)
+  const AUTH_URL = process.env.NEXT_PUBLIC_AUTH_API_URL || 'http://localhost:3000';
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setToken('');
     
     try {
-      // 1. Call your NestJS Auth Service
-      const res = await fetch('http://localhost:3000/auth/login', {
+      // 1. Call your NestJS Auth Service (Dynamic URL)
+      const res = await fetch(`${AUTH_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),

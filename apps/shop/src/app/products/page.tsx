@@ -15,12 +15,16 @@ export default function ShopPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // 🌍 Define Base URLs (Cloud or Local)
+  const PRODUCT_URL = process.env.NEXT_PUBLIC_PRODUCT_API_URL || 'http://localhost:3001';
+  const ORDER_URL = process.env.NEXT_PUBLIC_ORDER_API_URL || 'http://localhost:3002';
+
   // 1. Fetch Products on Load
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        // Hitting your Dockerized Product Service
-        const res = await axios.get('http://localhost:3001/api/products');
+        // Hitting your Product Service (Dynamic URL)
+        const res = await axios.get(`${PRODUCT_URL}/api/products`);
         setProducts(res.data);
       } catch (error) {
         console.error('Failed to load products', error);
@@ -35,9 +39,9 @@ export default function ShopPage() {
   // 2. Handle "Buy Now" (The Saga Trigger)
   const buyProduct = async (productId: string) => {
     try {
-      const userId = 1; // Hardcoded for demo
-      // Hitting your Dockerized Order Service
-      await axios.post('http://localhost:3002/api/orders', {
+      const userId = 'test-user-1'; // Hardcoded for demo
+      // Hitting your Order Service (Dynamic URL)
+      await axios.post(`${ORDER_URL}/api/orders`, {
         userId,
         productId,
         quantity: 1,
@@ -49,7 +53,7 @@ export default function ShopPage() {
     }
   };
 
-  if (loading) return <div className="p-10 text-center">Loading 1,000 Products...</div>;
+  if (loading) return <div className="p-10 text-center">Loading Products...</div>;
 
   return (
     <div className="min-h-screen bg-gray-100 p-8">
