@@ -8,7 +8,6 @@ import { AuthModule } from './auth/auth.module';
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      // 👇 CHANGE THIS LINE
       host: process.env.DB_HOST || 'postgres',
       port: 5432,
       username: process.env.DB_USERNAME || 'postgres',
@@ -16,6 +15,14 @@ import { AuthModule } from './auth/auth.module';
       database: process.env.DB_DATABASE || 'ecommerce_db',
       autoLoadEntities: true,
       synchronize: true,
+      
+      // 👇 VITAL FIX FOR NEON DATABASE (RENDER) 👇
+      // If we are NOT using 'postgres' (local docker), we assume we are in the cloud (Neon)
+      // Neon requires SSL, but Docker local does not.
+      ssl: process.env.DB_HOST !== 'postgres',
+      extra: {
+        ssl: process.env.DB_HOST !== 'postgres' ? { rejectUnauthorized: false } : null,
+      },
     }),
     AuthModule,
   ],
