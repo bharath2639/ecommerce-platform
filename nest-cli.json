@@ -1,0 +1,29 @@
+{
+  "monorepo": true,
+  "root": "apps/ecommerce-platform-source",
+  "sourceRoot": "apps/ecommerce-platform-source/src",
+  "compilerOptions": {
+    "webpack": true,
+    "tsConfigPath": "apps/ecommerce-platform-source/tsconfig.app.json"
+  },
+  "projects": {
+    "auth-service": {
+      "type": "application",
+      "root": "apps/auth-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/auth-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/auth-service/tsconfig.app.json"
+      }
+    },
+    "ecommerce-platform-source": {
+      "type": "application",
+      "root": "apps/ecommerce-platform-source",
+      "entryFile": "main",
+      "sourceRoot": "apps/ecommerce-platform-source/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/ecommerce-platform-source/tsconfig.app.json"
+      }
+    }
+  }
+}

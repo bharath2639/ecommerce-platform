@@ -1,0 +1,96 @@
+version: '3.8'
+
+services:
+  # 1. DATABASE
+  postgres:
+    image: postgres:15
+    container_name: ecommerce_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: bharath123
+      POSTGRES_DB: ecommerce_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - ecommerce-net
+
+  # 2. RABBITMQ
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: ecommerce_rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    networks:
+      - ecommerce-net
+
+  # 3. AUTH SERVICE
+  auth-service:
+    build: .
+    container_name: auth_service
+    command: npx nx serve auth-service --host 0.0.0.0
+    ports:
+      - "3000:3000"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: postgres
+      DB_PASSWORD: bharath123
+      DB_DATABASE: ecommerce_db
+      JWT_SECRET: hardcoded-secret-key-123
+    depends_on:
+      - postgres
+    networks:
+      - ecommerce-net
+
+  # 4. PRODUCT SERVICE
+  product-service:
+    build: .
+    container_name: product_service
+    command: npx nx serve product-service --host 0.0.0.0
+    ports:
+      - "3001:3001"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: postgres
+      DB_PASSWORD: bharath123
+      DB_DATABASE: ecommerce_db
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672 
+    depends_on:
+      - postgres
+      - rabbitmq
+    networks:
+      - ecommerce-net
+
+  # 5. ORDER SERVICE (Indentation Fixed)
+  order-service:
+    build: .
+    container_name: order_service
+    command: npx nx serve order-service --host 0.0.0.0
+    ports:
+      - "3002:3002"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: postgres
+      DB_PASSWORD: bharath123
+      DB_DATABASE: ecommerce_db
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+    depends_on:
+      - postgres
+      - rabbitmq
+    networks:
+      - ecommerce-net
+
+volumes:
+  postgres_data:
+
+networks:
+  ecommerce-net:
+    driver: bridge
