@@ -18,4 +18,4 @@ COPY . .
 RUN npx nx run-many --target=build --all
 
 # 7. Default Command (We will override this in Render)
-CMD ["node", "dist/apps/auth-service/main.js"]
+CMD ["node", "dist/apps/auth-service/src/main.js"]
