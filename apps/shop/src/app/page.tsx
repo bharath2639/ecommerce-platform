@@ -1,25 +1,30 @@
 // apps/shop/src/app/page.tsx
-'use client'; // Required for React hooks (useState)
+''use client';
 
 import { useState } from 'react';
 
-export default function LoginPage() {
+export default function AuthPage() {
+  const [isLogin, setIsLogin] = useState(true); // Toggle between Login & Register
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [token, setToken] = useState('');
   const [error, setError] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
 
-  // 🌍 Define Base URL (Cloud or Local)
+  // 🌍 Define Base URL
   const AUTH_URL = process.env.NEXT_PUBLIC_AUTH_API_URL || 'http://localhost:3000';
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setSuccessMsg('');
     setToken('');
-    
+
+    // Determine endpoint based on mode
+    const endpoint = isLogin ? '/auth/login' : '/auth/register';
+
     try {
-      // 1. Call your NestJS Auth Service (Dynamic URL)
-      const res = await fetch(`${AUTH_URL}/auth/login`, {
+      const res = await fetch(`${AUTH_URL}${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -28,14 +33,20 @@ export default function LoginPage() {
       const data = await res.json();
 
       if (res.ok) {
-        // 2. Success! Save/Show the token
-        setToken(data.token);
-        console.log('JWT Received:', data.token);
+        if (isLogin) {
+          // Login Success
+          setToken(data.token);
+          setSuccessMsg('Login successful!');
+        } else {
+          // Register Success
+          setSuccessMsg('Registration successful! Please log in.');
+          setIsLogin(true); // Switch to login view automatically
+        }
       } else {
-        setError(data.message || 'Login Failed');
+        setError(data.message || 'Action Failed');
       }
     } catch (err) {
-      setError('Could not connect to server. Is Auth Service running?');
+      setError('Could not connect to server.');
     }
   };
 
@@ -43,10 +54,10 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="max-w-md w-full space-y-8 p-8 bg-white shadow rounded-lg">
         <h2 className="text-center text-3xl font-extrabold text-gray-900">
-          Sign in to your account
+          {isLogin ? 'Sign in to your account' : 'Create a new account'}
         </h2>
-        
-        <form className="mt-8 space-y-6" onSubmit={handleLogin}>
+
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm -space-y-px">
             <input
               type="email"
@@ -70,14 +81,35 @@ export default function LoginPage() {
             type="submit"
             className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
-            Sign in
+            {isLogin ? 'Sign in' : 'Register'}
           </button>
         </form>
 
-        {/* RESULT DISPLAY */}
+        {/* TOGGLE BUTTON */}
+        <div className="text-center mt-4">
+          <button
+            onClick={() => {
+              setIsLogin(!isLogin);
+              setError('');
+              setSuccessMsg('');
+            }}
+            className="text-indigo-600 hover:text-indigo-500 text-sm font-medium"
+          >
+            {isLogin
+              ? "Don't have an account? Register"
+              : 'Already have an account? Sign in'}
+          </button>
+        </div>
+
+        {/* MESSAGES */}
         {token && (
           <div className="mt-4 p-4 bg-green-100 text-green-700 rounded break-all text-xs">
-            <strong>Success! Token:</strong> {token}
+            <strong>Token:</strong> {token}
+          </div>
+        )}
+        {successMsg && !token && (
+          <div className="mt-4 p-4 bg-green-100 text-green-700 rounded text-sm">
+            {successMsg}
           </div>
         )}
         {error && (
