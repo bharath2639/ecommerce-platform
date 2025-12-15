@@ -1,4 +1,4 @@
-import './global.css';
+import './global.css'; // Import the CSS we just created
 
 export const metadata = {
   title: 'My Shop',
